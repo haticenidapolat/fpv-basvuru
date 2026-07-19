@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uçuş Durumu — Hatice Nida Polat</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Archivo+Expanded:wght@600;700;800&display=swap');
+
+  :root{
+    --bg: #0a0d0f;
+    --bg-panel: #0f1417;
+    --line: #1c2428;
+    --amber: #ff8a1e;
+    --amber-dim: #7a4a1c;
+    --cyan: #4fd1c5;
+    --text: #d9e2e4;
+    --text-dim: #6b7b80;
+    --danger: #ff4d4d;
+  }
+
+  *{ box-sizing: border-box; margin:0; padding:0; }
+
+  html,body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body{
+    background-image:
+      linear-gradient(rgba(79,209,197,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(79,209,197,0.03) 1px, transparent 1px);
+    background-size: 34px 34px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 32px 16px;
+  }
+
+  .hud{
+    width: 100%;
+    max-width: 860px;
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(255,255,255,0.015), transparent 40%), var(--bg-panel);
+    position: relative;
+    padding: 0;
+  }
+
+  .hud::before, .hud::after,
+  .corner-tl, .corner-tr, .corner-bl, .corner-br{
+    content:'';
+    position:absolute;
+    width: 18px; height: 18px;
+    border-color: var(--amber);
+    border-style: solid;
+    border-width: 0;
+  }
+  .corner-tl{ top:-1px; left:-1px; border-top-width:2px; border-left-width:2px; }
+  .corner-tr{ top:-1px; right:-1px; border-top-width:2px; border-right-width:2px; }
+  .corner-bl{ bottom:-1px; left:-1px; border-bottom-width:2px; border-left-width:2px; }
+  .corner-br{ bottom:-1px; right:-1px; border-bottom-width:2px; border-right-width:2px; }
+
+  /* Top bar */
+  .topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding: 14px 22px;
+    border-bottom: 1px solid var(--line);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+  }
+  .topbar .rec{
+    display:flex; align-items:center; gap:8px;
+    color: var(--amber);
+  }
+  .rec-dot{
+    width:8px; height:8px; border-radius:50%;
+    background: var(--amber);
+    animation: blink 1.6s infinite;
+  }
+  @keyframes blink{ 0%,100%{opacity:1;} 50%{opacity:0.25;} }
+
+  .status-tag{
+    color: var(--cyan);
+    border: 1px solid rgba(79,209,197,0.35);
+    padding: 3px 10px;
+    letter-spacing: 0.1em;
+  }
+
+  /* Hero */
+  .hero{
+    padding: 46px 30px 30px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .eyebrow{
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+  }
+  .headline{
+    font-family: 'Archivo Expanded', sans-serif;
+    font-weight: 800;
+    font-size: clamp(28px, 5vw, 44px);
+    line-height: 1.15;
+    color: #fff;
+    letter-spacing: -0.01em;
+  }
+  .headline .accent{ color: var(--amber); }
+
+  .sub{
+    margin-top: 16px;
+    font-size: 14px;
+    color: var(--text-dim);
+    max-width: 560px;
+    line-height: 1.7;
+  }
+
+  /* Status readout */
+  .readout{
+    padding: 26px 30px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .readout-label{
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+  }
+  .flightbox{
+    border: 1px solid var(--line);
+    background: #0c1013;
+    padding: 20px;
+    display:flex;
+    align-items:center;
+    gap: 18px;
+  }
+  .flightbox .icon{
+    font-size: 22px;
+    color: var(--danger);
+    flex-shrink:0;
+  }
+  .flightbox p{
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .flightbox strong{ color: #fff; }
+
+  /* Stats grid */
+  .stats{
+    padding: 26px 30px;
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border-bottom: 1px dashed var(--line);
+  }
+  .stat{
+    background: var(--bg-panel);
+    padding: 18px 16px;
+  }
+  .stat .num{
+    font-family: 'Archivo Expanded', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--cyan);
+  }
+  .stat .num.amber{ color: var(--amber); }
+  .stat .lbl{
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+
+  /* Checklist */
+  .checklist{
+    padding: 26px 30px 34px;
+  }
+  .readout-label{ margin-bottom: 16px; }
+  .item{
+    display:flex;
+    gap: 14px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 13.5px;
+    align-items:flex-start;
+  }
+  .item:last-child{ border-bottom:none; }
+  .item .check{
+    color: var(--cyan);
+    font-weight: 700;
+    flex-shrink:0;
+    width: 18px;
+  }
+  .item .txt{ color: var(--text); line-height:1.6; }
+  .item .txt span{ color: var(--text-dim); }
+
+  /* Footer strip */
+  .footer{
+    padding: 18px 30px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .footer .name{ color: var(--amber); }
+
+  @media (max-width: 520px){
+    .topbar{ flex-direction:column; align-items:flex-start; gap:8px; }
+    .flightbox{ flex-direction:column; align-items:flex-start; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="hud">
+    <div class="corner-tl"></div>
+    <div class="corner-tr"></div>
+    <div class="corner-bl"></div>
+    <div class="corner-br"></div>
+
+    <div class="topbar">
+      <div class="rec"><span class="rec-dot"></span> BAŞVURU KAYDI · CANLI</div>
+      <div class="status-tag">DURUM: SIFIR UÇUŞ SAATİ, TAM HAZIRLIK</div>
+    </div>
+
+    <div class="hero">
+      <div class="eyebrow">FPV DRONE — ÖN UÇUŞ DURUM RAPORU</div>
+      <h1 class="headline">Henüz <span class="accent">havalanmadım</span>,<br>ama pistte hazır bekliyorum.</h1>
+      <p class="sub">Bu sayfa, T3 FPV Akademi başvurumun "önceki uçuş deneyimi" sorusuna verdiğim dürüst cevabı içeriyor — ve neden bu programın tam olarak aradığım fırsat olduğunu.</p>
+    </div>
+
+    <div class="readout">
+      <div class="readout-label">// UÇUŞ KAYDI</div>
+      <div class="flightbox">
+        <div class="icon">▲</div>
+        <p><strong>Daha önce gerçek veya simülasyon ortamında FPV drone uçuşu gerçekleştirmedim.</strong><br>
+        Elimde paylaşacağım bir DVR görüntüsü ya da uçuş videosu yok — çünkü bu alana henüz adım atmadım. Ama tam da bu yüzden buradayım: sıfırdan, doğru ve disiplinli bir şekilde öğrenmek istiyorum.</p>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="num">0</div>
+        <div class="lbl">UÇUŞ SAATİ</div>
+      </div>
+      <div class="stat">
+        <div class="num amber">12</div>
+        <div class="lbl">TAMAMLANAN DENEYAP<br>TEKNOLOJİ ATÖLYESİ</div>
+      </div>
+      <div class="stat">
+        <div class="num">100%</div>
+        <div class="lbl">DÜZENLİ KATILIM<br>TAAHHÜDÜ</div>
+      </div>
+      <div class="stat">
+        <div class="num amber">%100</div>
+        <div class="lbl">ÖĞRENME<br>MOTİVASYONU</div>
+      </div>
+    </div>
+
+    <div class="checklist">
+      <div class="readout-label">// NEDEN HAZIRIM</div>
+      <div class="item">
+        <span class="check">✓</span>
+        <span class="txt">Robotik, elektronik, yazılım ve havacılık-uzay teknolojileri alanlarında <span>Deneyap Teknoloji Atölyeleri'nde 12 eğitim</span> tamamladım.</span>
+      </div>
+      <div class="item">
+        <span class="check">✓</span>
+        <span class="txt">Deneyap Mezunlar Platformu Antalya İl Temsilcisi olarak <span>gönüllü liderlik ve organizasyon deneyimi</span> edindim.</span>
+      </div>
+      <div class="item">
+        <span class="check">✓</span>
+        <span class="txt">Yapay zeka ve görüntü işleme alanında kendi projelerimi <span>sıfırdan geliştirip tamamladım</span> — yeni bir alana disiplinle girmenin ne demek olduğunu biliyorum.</span>
+      </div>
+      <div class="item">
+        <span class="check">✓</span>
+        <span class="txt">Uçuş deneyimim yok, ama <span>güvenlik kurallarına ve eğitmen talimatlarına eksiksiz uyma taahhüdüm tam.</span></span>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span class="name">Hatice Nida Polat</span>
+      <span>YBS Öğrencisi · Deneyap Gönüllüsü · T3 FPV Akademi Adayı</span>
+    </div>
+  </div>
+
+</body>
+</html>
